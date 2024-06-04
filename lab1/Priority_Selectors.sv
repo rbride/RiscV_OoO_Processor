@@ -102,7 +102,6 @@ module ps8(
     ps4 lower( .req(req[3:0]), .en(top_gnt[0]), .gnt(gnt[3:0]), req_up(req_lower)); 
     //Only need one more ps2 not a ps4
     ps2 tops8( .req( {req_upper, req_lower}), .en(en), .gnt(top_gnt);
-
     assign req_up = |top_gnt; 
 
 endmodule

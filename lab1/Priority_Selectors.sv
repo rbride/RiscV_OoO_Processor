@@ -82,9 +82,10 @@ module ps4(
     logic [1:0] top_gnt;  logic req_lower; logic req_upper; 
     ps2 upper( .req(req[3:2]), .en(top_gnt[1]), .gnt(gnt[3:2]), .req_up(req_upper)); 
     ps2 lower( .req(req[1:0]), .en(top_gnt[0]), .gnt(gnt[1:0]), .req_up(req_lower));
-    ps2 topps( .req( {req_upper, req_lower}), .en(en), .gnt(top_gnt)); 
-    
-    assign req_up = req_lower | req_upper;
+    ps2 tops4( .req( {req_upper, req_lower}), .en(en), .gnt(top_gnt)); 
+    //For timing reasons as the circuit grows I think it is best to set this to be | of the top selector
+    //as that is the logical slowest selector that hits, so I would use this
+    assign req_up = |top_gnt ;   //Reduction or mentioned moment!!! Soy!!!
     
 endmodule
 
@@ -95,8 +96,14 @@ module ps8(
     output logic [7:0] gnt,
     output logic       req_up
 );
+    //The logic folllows the same chain of thought, easy money no need to verify
+    logic [1:0] top_gnt;  logic req_lower; logic req_upper; 
+    ps4 upper( .req(req[7:4]), .en(top_gnt[1]), .gnt(gnt[7:4]), req_up(req_upper));
+    ps4 lower( .req(req[3:0]), .en(top_gnt[0]), .gnt(gnt[3:0]), req_up(req_lower)); 
+    //Only need one more ps2 not a ps4
+    ps2 tops8( .req( {req_upper, req_lower}), .en(en), .gnt(top_gnt);
 
-    
+    assign req_up = |top_gnt; 
 
 endmodule
 

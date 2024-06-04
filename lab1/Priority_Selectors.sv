@@ -45,6 +45,61 @@ module ps4_if (
     end
 endmodule
 
+/* The second half with the three modules you use to generate a ps4 and ps8 out of 2 2 bit and 4 etc*/
+module ps2(
+    input        [1:0] req,
+    input              en,
+    output logic [1:0] gnt,
+    output logic       req_up
+);
+    always_comb begin
+        if(en) begin
+            if      (req[1])    gnt = 2'b10; 
+            else if (req[0])    gnt = 2'b01;
+        end 
+        else				 	gnt = 2'b00;
+
+        if(req[1] | req[0]) 		req_up = 1'b1;
+        else						req_up = 1'b0;
+    end
+    // The req_up logic is seperate if you put it in the above block it will fail because they shouldn't 
+    // be linked and the synthesizer will link them dependently  alternatively if you just seperate it 
+    // like above it will also work, just seperate the two completely seperate logic blocks
+  	// always_comb begin
+    //   if(req[1] | req[0]) 		req_up = 1'b1;
+    //   else						req_up = 1'b0;
+    // end
+  
+endmodule
+
+module ps4(
+    input        [3:0] req,
+    input              en,
+    output logic [3:0] gnt,
+    output logic       req_up
+);
+
+    logic [1:0] top_gnt;  logic req_lower; logic req_upper; 
+    ps2 upper( .req(req[3:2]), .en(top_gnt[1]), .gnt(gnt[3:2]), .req_up(req_upper)); 
+    ps2 lower( .req(req[1:0]), .en(top_gnt[0]), .gnt(gnt[1:0]), .req_up(req_lower));
+    ps2 topps( .req( {req_upper, req_lower}), .en(en), .gnt(top_gnt)); 
+    
+    assign req_up = req_lower | req_upper;
+    
+endmodule
+
+
+module ps8(
+    input        [7:0] req,
+    input              en,
+    output logic [7:0] gnt,
+    output logic       req_up
+);
+
+    
+
+endmodule
+
 
 //for example assuming en = 1, req= 0101 since the highest bit is the priority then grant 0100 
 //only grant one at a time

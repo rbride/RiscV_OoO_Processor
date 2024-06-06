@@ -32,7 +32,6 @@ module rps2 (
     output logic [1:0] gnt,
     output logic       req_up
 );    
-
     always_comb begin
         if(en) begin
             if      (req[ sel])    gnt = 2'b10; 
@@ -44,32 +43,4 @@ module rps2 (
         if(req[1] | req[0])        req_up = 1'b1;
         else                       req_up = 1'b0; 
     end
-
-
-endmodule
-//previous
-module ps2(
-    input        [1:0] req,
-    input              en,
-    output logic [1:0] gnt,
-    output logic       req_up
-);
-    always_comb begin
-        if(en) begin
-            if      (req[1])    gnt = 2'b10; 
-            else if (req[0])    gnt = 2'b01;
-        end 
-        else				 	gnt = 2'b00;
-
-        if(req[1] | req[0]) 		req_up = 1'b1;
-        else						req_up = 1'b0;
-    end
-    // The req_up logic is seperate if you put it in the above block it will fail because they shouldn't 
-    // be linked and the synthesizer will link them dependently  alternatively if you just seperate it 
-    // like above it will also work, just seperate the two completely seperate logic blocks
-  	// always_comb begin
-    //   if(req[1] | req[0]) 		req_up = 1'b1;
-    //   else						req_up = 1'b0;
-    // end
-  
 endmodule

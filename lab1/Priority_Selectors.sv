@@ -85,7 +85,7 @@ module ps4(
     ps2 tops4( .req( {req_upper, req_lower}), .en(en), .gnt(top_gnt)); 
     //For timing reasons as the circuit grows I think it is best to set this to be | of the top selector
     //as that is the logical slowest selector that hits, so I would use this
-    assign req_up = |top_gnt ;   //Reduction or mentioned moment!!! Soy!!!
+    assign req_up = |top_gnt ;   //Reduction or mentioned moment!!! 
     
 endmodule
 

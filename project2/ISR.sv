@@ -18,34 +18,53 @@ module ISR (
     output logic    [31:0]  result,
     output logic            done
 );
-    fsm_states state, next_state;       logic start, done;
-    logic [63:0] mul_in, mul_out, value_internal;
-    // Instantiate the multiplier, since the only multiply is checking to ensure that 
-    // the current integer is still less than the provided value we are finding isr of, so use the same 
-    // wire as both multiplier and multiplicand 
+
+    fsm_states          state, next_state;      
+    logic               start, done;
+    logic       [63:0]  value_internal;         
+    wire        [31:0]  result_d;
+    logic       [31:0]  result_q;  
+    
+    // Instantiate the multiplier, since multiply is only checking to ensure that the current integer is
+    // still less than the provided value we are finding isr of, use the same wire for both mplier & mcand
     mult mul ( .clock(clock), .reset(reset), .mcand(mul_in), mplier(mul_in), 
-            .start(start), .product(mul_out), .done(done)                 );
+            .start(start), .product(mul_out), .done(done)                    );
 
     always_comb begin
         //Defaults the values with go to if not set by any of the states in the state machine
         state_next      =  state;
         done            =  1'b0;
-        result          =  32'h0000_0000;
+        case(state) begin
+            IDLE : begin
+                state_next      =  IDLE;
+                done            =  1'b0;
+                //Should only be high one cycle same as done. didn't have to, didn't have to write cuz taken
+                //care of above with the default but tis what it is
+                result          =  32'h0000_0000;  
 
-        case(state)
+            end
+            /* In start we send the current guess in the chain off to be multiplied */
+            START : begin
+                state_next      =  WAIT;
+                start           =  1'b1;
+            end
+
+
+        endcase 
 
     end
 
 
     always_ff @(posedge clock) begin
-        //documentation states that if a reset is asserted during a rising clock edge, 
-        //Since you are to write the signal value and begin computer go to start as you disregard 
-        //any previous and start computing again 
+        //documentation states: if a reset is asserted during a computation, overwrite the current value & start
+        //computing again disregarding ongoing comp so both resets are the same, start first time & restart
         if(reset) begin
             state           <=  START;
             value_internal  <=  value;
+            result_q        <=  32'h8000_0000;  //reset to 1 in the MSB as it starts in the binary search algo
         end else begin
-            state           <=  next_state
+            state           <=  next_state;
+            result_q        <=  result_d;
         end
     end
 

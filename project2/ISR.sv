@@ -3,7 +3,7 @@ the highest 32 bit integer that is closest but still less than the square root o
 provided 64 bit number... I.E highest integer fufilling the following provide > result * result
 Also required to take less than 600 cycles
 */
-typedef enum logic { 
+typedef enum logic [2:0] { 
     IDLE,
     DELAY,
     PROCESS, 
@@ -21,7 +21,7 @@ module ISR (
     output logic            done
 );
 
-    fsm_states          state, next_state;      
+    fsm_states          state, state_next;      
     wire                done_next;
     wire                mul_start, mul_done;
     logic       [63:0]  value_internal;         
@@ -54,7 +54,7 @@ module ISR (
         // Defaults so that they don't have to written ever time
         result_next     =  result_q;  //Unless results changed keep it the same
         done_next       =  1'b0;
-        unique case(state) begin
+        case(state)
             IDLE : begin
                 state_next      =  IDLE;
                 done_next       =  1'b0;
@@ -81,14 +81,14 @@ module ISR (
                */
             PROCESS : begin
                 state_next      = FEED;
-                if      (pre_process_flag[6])       result_next = 32'h8000; index_next = 4'hF;
-                else if (pre_process_flag[5])       result_next = 32'h2000; index_next = 4'hD;
-                else if (pre_process_flag[4])       result_next = 32'h800;  index_next = 4'hB;
-                else if (pre_process_flag[3])       result_next = 32'h400;  index_next = 4'hA;
-                else if (pre_process_flag[2])       result_next = 32'h80;   index_next = 4'h7;
-                else if (pre_process_flag[1])       result_next = 32'h20;   index_next = 4'h5;
-                else if (pre_process_flag[0])       result_next = 32'h8;    index_next = 4'h3;
-                else                                result_next = 32'h3;    index_next = 4'h1;                                   
+                if      (pre_process_flag[6])   begin   result_next = 32'h8000; index_next = 4'hF;  end
+                else if (pre_process_flag[5])   begin   result_next = 32'h2000; index_next = 4'hD;  end
+                else if (pre_process_flag[4])   begin   result_next = 32'h800;  index_next = 4'hB;  end
+                else if (pre_process_flag[3])   begin   result_next = 32'h400;  index_next = 4'hA;  end
+                else if (pre_process_flag[2])   begin   result_next = 32'h80;   index_next = 4'h7;  end
+                else if (pre_process_flag[1])   begin   result_next = 32'h20;   index_next = 4'h5;  end
+                else if (pre_process_flag[0])   begin   result_next = 32'h8;    index_next = 4'h3;  end
+                else                            begin   result_next = 32'h3;    index_next = 4'h1;  end                                   
             end
 
             /* In start we send the current guess in the chain off to be multiplied */
@@ -104,7 +104,6 @@ module ISR (
                 mul_start       =  1'b0;
                 if( mul_done ) begin
                     state_next  =  CHECK;
-                end
                 end 
                 //else still waiting
                 else begin
@@ -148,7 +147,7 @@ module ISR (
             state           <=  DELAY;
             value_internal  <=  value;
         end else begin
-            state           <=  next_state;
+            state           <=  state_next;
             result_q        <=  result_next;
             done            <=  done_next;
             index           <=  index_next;

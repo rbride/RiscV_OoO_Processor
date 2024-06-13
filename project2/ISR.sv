@@ -33,7 +33,7 @@ module ISR (
     
     // Instantiate the multiplier, since multiply is only checking to ensure that the current integer is
     // still less than the provided value we are finding isr of, use the same wire for both mplier & mcand
-    mult mul ( .clock(clock), .reset(reset), .mcand(result_q), mplier(result_q), 
+    mult mul ( .clock(clock), .reset(reset), .mcand(result_q), .mplier(result_q), 
                .start(mul_start), .product(mul_out), .done(mul_done)                    );
 
     //I read the 3rd point of the docs as the results can be whatever the hell it wants, and 
@@ -54,15 +54,16 @@ module ISR (
         // Defaults so that they don't have to written ever time
         result_next     =  result_q;  //Unless results changed keep it the same
         done_next       =  1'b0;
-        case(state) begin
+        unique case(state) begin
             IDLE : begin
                 state_next      =  IDLE;
+                done_next       =  1'b0;
             end
 
             /* Immediately throwing everything through the comb would cause a hold time violation 
                at high speeds so we delay a cycle because the purpose of the preprocessor is to 
                decrease the worst case, but equalize the time across all cases, so its very consistent 
-               not the optimal but consistently lower, atleast in my theory */
+               not the optimal but consistently lower, atleast in half ass theory theory */
             DELAY : begin
                 state_next      =  PROCESS;
             end
@@ -80,23 +81,21 @@ module ISR (
                */
             PROCESS : begin
                 state_next      = FEED;
-                if      (pre_process_flag[6])       result_next = 32'h8000; index = 4'hF;
-                else if (pre_process_flag[5])       result_next = 32'h2000; index = 4'hD;
-                else if (pre_process_flag[4])       result_next = 32'h800;  index = 4'hB;
-                else if (pre_process_flag[3])       result_next = 32'h400;  index = 4'hA;
-                else if (pre_process_flag[2])       result_next = 32'h80;   index = 4'h7;
-                else if (pre_process_flag[1])       result_next = 32'h20;   index = 4'h5;
-                else if (pre_process_flag[0])       result_next = 32'h8;    index = 4'h3;
-                else                                result_next = 32'h3;    index = 4'h1;                                   
+                if      (pre_process_flag[6])       result_next = 32'h8000; index_next = 4'hF;
+                else if (pre_process_flag[5])       result_next = 32'h2000; index_next = 4'hD;
+                else if (pre_process_flag[4])       result_next = 32'h800;  index_next = 4'hB;
+                else if (pre_process_flag[3])       result_next = 32'h400;  index_next = 4'hA;
+                else if (pre_process_flag[2])       result_next = 32'h80;   index_next = 4'h7;
+                else if (pre_process_flag[1])       result_next = 32'h20;   index_next = 4'h5;
+                else if (pre_process_flag[0])       result_next = 32'h8;    index_next = 4'h3;
+                else                                result_next = 32'h3;    index_next = 4'h1;                                   
             end
 
             /* In start we send the current guess in the chain off to be multiplied */
             FEED : begin        //named feed instead of start to avoid confusion
                 state_next      =  WAIT;
                 mul_start       =  1'b1;
-                // Result_Q is already propagated with the start value of 32'h8000_0000 by the reset
-                // or by the previous wait fail so result_d (next) = result_q (current stored)
-
+                // Result value should already be propagated
             end
             
             /* wait for result */
@@ -105,16 +104,39 @@ module ISR (
                 mul_start       =  1'b0;
                 if( mul_done ) begin
                     state_next  =  CHECK;
-                    if( mul_out > )
-                    
+                end
                 end 
                 //else still waiting
                 else begin
                     state_next  =  WAIT;
-                end 
+                end    
             end
 
+            /* Check case may be doable in the wait case but moved to its own for no reason lmao */ 
+            CHECK : begin
+                //Is the result greater, if so set index in result 0 and feed new smaller number to multiplier
+                if( mul_out > value_internal ) begin
+                        result_next[index]  =   0;
+                        index_next          =   index-1'b1;
+                        state_next          =   FEED;
+                    end
+                //Its less than, so are we all the way through i.e. our index is 0 or do we need to 
+                //keep going through the bits so send it back to feed
+                else begin  
+                    if( index == 4'b0000 ) begin
+                        state_next  =  DONE;
+                    end 
+                    else begin
+                        state_next  =  FEED;
+                        index_next  =  index-1'b1;
+                    end  
+                end
+            end
 
+            DONE : begin
+                done_next   =  1'b1; //indicate we are done and the result is valid for a single clock cycle
+                state_next  =  IDLE;
+            end
         endcase 
 
     end
@@ -125,7 +147,6 @@ module ISR (
         if(reset) begin
             state           <=  DELAY;
             value_internal  <=  value;
-            //result_q        <=  32'h8000_0000;  //reset to 1 in the MSB as it starts in the binary search algo
         end else begin
             state           <=  next_state;
             result_q        <=  result_next;

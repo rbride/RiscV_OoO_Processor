@@ -13,7 +13,8 @@
 /////////////////////////////////////////////////////////////////////////
 
 `timescale 1ns/100ps
-
+`include "sys_defs.svh"
+`include "ISA.svh"
 
 module wb_stage(
     input         clock,                // system clock

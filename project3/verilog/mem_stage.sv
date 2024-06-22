@@ -15,6 +15,8 @@
 `define __MEM_STAGE_V__
 
 `timescale 1ns/100ps
+`include "sys_defs.svh"
+`include "ISA.svh"
 
 module mem_stage(
 	input         clock,              // system clock

@@ -11,7 +11,8 @@
 
 `ifndef __PIPELINE_V__
 `define __PIPELINE_V__
-
+`include "sys_defs.svh"
+`include "ISA.svh"
 `timescale 1ns/100ps
 
 module pipeline (
@@ -166,7 +167,7 @@ module pipeline (
 	assign if_id_NPC        = if_id_packet.NPC;
 	assign if_id_IR         = if_id_packet.inst;
 	assign if_id_valid_inst = if_id_packet.valid;
-	assign if_id_enable = 1'b1; // always enabled
+	assign if_id_enable 	= 1'b1; // always enabled
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
 		if (reset) begin 

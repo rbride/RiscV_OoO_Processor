@@ -14,7 +14,8 @@
 `define __EX_STAGE_V__
 
 `timescale 1ns/100ps
-
+`include "sys_defs.svh"
+`include "ISA.svh"
 //
 // The ALU
 //

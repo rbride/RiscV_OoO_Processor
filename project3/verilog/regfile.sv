@@ -11,6 +11,8 @@
 `define __REGFILE_V__
 
 `timescale 1ns/100ps
+`include "sys_defs.svh"
+`include "ISA.svh"
 
 module regfile(
         input   [4:0] rda_idx, rdb_idx, wr_idx,    // read/write index

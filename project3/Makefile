@@ -12,53 +12,52 @@
 # similar to the information in those scripts but that seems hard to avoid.
 #
 
-SOURCE = test_progs/sampler.s
+SOURCE = test_progs/bfs.c
 
 CRT = crt.s
 LINKERS = linker.lds
 ASLINKERS = aslinker.lds
 
-# DEBUG_FLAG = -g
-# CFLAGS =  -mno-relax -march=rv32im -mabi=ilp32 -nostartfiles -std=gnu11 -mstrict-align -mno-div
-# OFLAGS = -O0
-# ASFLAGS = -mno-relax -march=rv32im -mabi=ilp32 -nostartfiles -Wno-main -mstrict-align
-# OBJFLAGS = -SD -M no-aliases 
-# OBJDFLAGS = -SD -M numeric,no-aliases
+DEBUG_FLAG = -g
+CFLAGS =  -mno-relax -march=rv32im -mabi=ilp32 -nostartfiles -std=gnu11 -mstrict-align -mno-div
+OFLAGS = -O2
+ASFLAGS = -mno-relax -march=rv32im -mabi=ilp32 -nostartfiles -Wno-main -mstrict-align
+OBJFLAGS = -SD -M no-aliases 
+OBJDFLAGS = -SD -M numeric,no-aliases
 
 GCC = riscv64-unknown-elf-gcc
 OBJDUMP = riscv64-unknown-elf-objdump
 AS = riscv64-unknown-elf-as
 ELF2HEX = elf2hex
 
+compile: $(CRT) $(LINKERS)
+	$(GCC) $(CFLAGS) $(OFLAGS) $(CRT) $(SOURCE) -T $(LINKERS) -o program.elf
+	$(GCC) $(CFLAGS) $(DEBUG_FLAG) $(OFLAGS) $(CRT) $(SOURCE) -T $(LINKERS) -o program.debug.elf
+assemble: $(ASLINKERS)
+	$(GCC) $(ASFLAGS) $(SOURCE) -T $(ASLINKERS) -o program.elf 
+	cp program.elf program.debug.elf
+disassemble: program.debug.elf
+	$(OBJDUMP) $(OBJFLAGS) program.debug.elf > program.dump
+	$(OBJDUMP) $(OBJDFLAGS) program.debug.elf > program.debug.dump
+	rm program.debug.elf
+hex: program.elf
+	$(ELF2HEX) 8 8192 program.elf > program.mem
 
+program: compile disassemble hex
+	@:
 
-# compile: $(CRT) $(LINKERS)
-# 	$(GCC) $(CFLAGS) $(OFLAGS) $(CRT) $(SOURCE) -T $(LINKERS) -o program.elf
-# 	$(GCC) $(CFLAGS) $(DEBUG_FLAG) $(OFLAGS) $(CRT) $(SOURCE) -T $(LINKERS) -o program.debug.elf
-# assemble: $(ASLINKERS)
-# 	$(GCC) $(ASFLAGS) $(SOURCE) -T $(ASLINKERS) -o program.elf 
-# 	cp program.elf program.debug.elf
-# disassemble: program.debug.elf
-# 	$(OBJDUMP) $(OBJFLAGS) program.debug.elf > program.dump
-# 	$(OBJDUMP) $(OBJDFLAGS) program.debug.elf > program.debug.dump
-# 	rm program.debug.elf
-# hex: program.elf
-# 	$(ELF2HEX) 8 8192 program.elf > program.mem
+debug_program:
+	gcc -lm -g -std=gnu11 -DDEBUG $(SOURCE) -o debug_bin
+assembly: assemble disassemble hex
+	@:
 
-# program: compile disassemble hex
-# 	@:
-
-# debug_program:
-# 	gcc -lm -g -std=gnu11 -DDEBUG $(SOURCE) -o debug_bin
-# assembly: assemble disassemble hex
-# 	@:
 
 
 TESTBENCH = sys_defs.svh			\
 			ISA.svh         		\
 			testbench/mem.sv 		\
 			testbench/pipe_print.c 	\
-			testbench/testbench.sv
+			testbench/testbench.sv  \
 
 SYTHN_SRC = verilog/pipeline.sv		\
 			verilog/regfile.sv		\
@@ -75,9 +74,11 @@ VTUBER 	  = sys_defs.svh	\
 			testbench/visual_c_hooks.cpp \
 			testbench/pipe_print.c
 
+SRC 	  = src.cpp
+
 OBJ_DIR = obj_dir
 
-VERILATOR = verilator -sv --cc --exe --build --timing --top-module "\
+VERILATOR = verilator -sv --cc --exe --trace --trace-structs --build --timing --main \
 			 --Wno-"WIDTHEXPAND" --Wno-"CASEINCOMPLETE" --Wno-WIDTHTRUNC
 
 OUTPUT = sim
@@ -85,7 +86,7 @@ OUTPUT = sim
 all: $(OUTPUT)
 
 #Rule to build the verilated module and compile the C++ test
-$(OUTPUT): $(SYTHN_SRC)  $(TESTBENCH)
+$(OUTPUT): $(SYTHN_SRC)  $(TESTBENCH) 
 	$(VERILATOR) $(SYTHN_SRC) $(TESTBENCH) 
 #	$(MAKE) -C $(OBJ_DIR) -f Vpipeline.mk
 

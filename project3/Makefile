@@ -30,9 +30,11 @@ OBJDUMP = riscv64-unknown-elf-objdump
 AS = riscv64-unknown-elf-as
 ELF2HEX = elf2hex
 
+#use compile for C
 compile: $(CRT) $(LINKERS)
 	$(GCC) $(CFLAGS) $(OFLAGS) $(CRT) $(SOURCE) -T $(LINKERS) -o program.elf
 	$(GCC) $(CFLAGS) $(DEBUG_FLAG) $(OFLAGS) $(CRT) $(SOURCE) -T $(LINKERS) -o program.debug.elf
+#use assemble for 
 assemble: $(ASLINKERS)
 	$(GCC) $(ASFLAGS) $(SOURCE) -T $(ASLINKERS) -o program.elf 
 	cp program.elf program.debug.elf
@@ -40,8 +42,9 @@ disassemble: program.debug.elf
 	$(OBJDUMP) $(OBJFLAGS) program.debug.elf > program.dump
 	$(OBJDUMP) $(OBJDFLAGS) program.debug.elf > program.debug.dump
 	rm program.debug.elf
+
 hex: program.elf
-	$(ELF2HEX) 8 8192 program.elf > program.mem
+	../../freedom-elf2hex/bin/elf2hex --bit-width 64 --input ./program.elf --output ./program.mem
 
 program: compile disassemble hex
 	@:

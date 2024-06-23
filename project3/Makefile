@@ -88,10 +88,14 @@ all: $(OUTPUT)
 #Rule to build the verilated module and compile the C++ test
 $(OUTPUT): $(SYTHN_SRC)  $(TESTBENCH) 
 	$(VERILATOR) $(SYTHN_SRC) $(TESTBENCH) 
+	mv $(OBJ_DIR)/Vpipeline ./simv
 #	$(MAKE) -C $(OBJ_DIR) -f Vpipeline.mk
 
 clean:
 	rm -rf $(OBJ_DIR) $(OUTPUT)
+	rm -rf pipeline.out writeback.out 
+	rm -rf simv
+	rm -rf program.*
 
 # Phony targets
 .PHONY: all clean

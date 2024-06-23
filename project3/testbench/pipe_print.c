@@ -15,7 +15,7 @@ static int cycle_count = 0;
 static FILE* ppfile = NULL;
 
 
-void print_header(char* str)
+extern "C" void print_header(char* str)
 {
   if (ppfile == NULL)
     ppfile = fopen("pipeline.out", "w");
@@ -23,7 +23,7 @@ void print_header(char* str)
   fprintf(ppfile, "%s", str);
 }
 
-void print_cycles()
+extern "C" void print_cycles()
 {
   /* we'll enforce the printing of a header */
   if (ppfile != NULL)
@@ -31,7 +31,7 @@ void print_cycles()
 }
 
 
-void print_stage(char* div, int inst, int npc, int valid_inst)
+extern "C" void print_stage(char* div, int inst, int npc, int valid_inst)
 {
   int opcode, funct3, funct7, funct12;
   char *str;
@@ -152,14 +152,14 @@ void print_stage(char* div, int inst, int npc, int valid_inst)
     fprintf(ppfile, "%s%4d:%-8s", div, npc, str);
 }
 
-void print_close()
+extern "C" void print_close()
 {
   fprintf(ppfile, "\n");
   fclose(ppfile);
   ppfile = NULL;
 }
 
-void print_reg(int wb_reg_wr_data_out_hi, int wb_reg_wr_data_out_lo,
+extern "C" void print_reg(int wb_reg_wr_data_out_hi, int wb_reg_wr_data_out_lo,
                   int wb_reg_wr_idx_out, int wb_reg_wr_en_out)
 {
   if (ppfile == NULL)
@@ -175,7 +175,7 @@ void print_reg(int wb_reg_wr_data_out_hi, int wb_reg_wr_data_out_lo,
 
 }
 
-void print_membus(int proc2mem_command, int mem2proc_response,
+extern "C" void print_membus(int proc2mem_command, int mem2proc_response,
                   int proc2mem_addr_hi, int proc2mem_addr_lo,
                   int proc2mem_data_hi, int proc2mem_data_lo)
 {

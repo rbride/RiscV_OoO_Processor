@@ -176,8 +176,30 @@ module testbench;
 		@(posedge clock);
 		@(posedge clock);
 		
-		$readmemh("program.mem", memory.unified_memory);
-		
+		//$readmemh("program.mem", memory.unified_memory);
+        memory.unified_memory[0]  = 64'h00001fb700100413;
+        memory.unified_memory[1]  = 64'h01000def00e00893;
+        memory.unified_memory[2]  = 64'h0011202340000113;
+        memory.unified_memory[3]  = 64'h0408806310500073;
+        memory.unified_memory[4]  = 64'hfe0f8f9302888e63;
+        memory.unified_memory[5]  = 64'h011fa02301bfac23;
+        memory.unified_memory[6]  = 64'hfe9ffdeffff88893;
+        memory.unified_memory[7]  = 64'h000fa883001fa423;
+        memory.unified_memory[8]  = 64'hfd9ffdefffe88893;
+        memory.unified_memory[9]  = 64'h001100b3008fa103;
+        memory.unified_memory[10] = 64'h020f8f93018fad83;
+        memory.unified_memory[11] = 64'h00100093000d8067;
+        memory.unified_memory[12] = 64'h00000000000d8067;
+        memory.unified_memory[13] = 64'h0000000000000000;
+        memory.unified_memory[14] = 64'h0000000000000000;
+        memory.unified_memory[15] = 64'h0000000000000000;
+        memory.unified_memory[16] = 64'h0000000000000000;
+        memory.unified_memory[17] = 64'h0000000000000000;
+        memory.unified_memory[18] = 64'h0000000000000000;
+        memory.unified_memory[19] = 64'h0000000000000000;
+        memory.unified_memory[20] = 64'h0000000000000000;
+
+
 		@(posedge clock);
 		@(posedge clock);
 		`SD;

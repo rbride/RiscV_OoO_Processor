@@ -12,7 +12,7 @@
 # similar to the information in those scripts but that seems hard to avoid.
 #
 
-SOURCE = test_progs/bfs.c
+SOURCE = test_progs/rv32_fib_rec.s
 
 CRT = crt.s
 LINKERS = linker.lds
@@ -20,7 +20,7 @@ ASLINKERS = aslinker.lds
 
 DEBUG_FLAG = -g
 CFLAGS =  -mno-relax -march=rv32im -mabi=ilp32 -nostartfiles -std=gnu11 -mstrict-align -mno-div
-OFLAGS = -O2
+OFLAGS = -O0
 ASFLAGS = -mno-relax -march=rv32im -mabi=ilp32 -nostartfiles -Wno-main -mstrict-align
 OBJFLAGS = -SD -M no-aliases 
 OBJDFLAGS = -SD -M numeric,no-aliases

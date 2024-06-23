@@ -54,8 +54,6 @@ debug_program:
 assembly: assemble disassemble hex
 	@:
 
-
-
 TESTBENCH = sys_defs.svh			\
 			ISA.svh         		\
 			testbench/mem.sv 		\
@@ -69,15 +67,6 @@ SYTHN_SRC = verilog/pipeline.sv		\
 			verilog/ex_stage.sv		\
 			verilog/mem_stage.sv	\
 			verilog/wb_stage.sv
-
-VTUBER 	  = sys_defs.svh	\
-			ISA.svh         \
-			testbench/mem.sv  \
-			testbench/visual_testbench.v \
-			testbench/visual_c_hooks.cpp \
-			testbench/pipe_print.c
-
-SRC 	  = src.cpp
 
 OBJ_DIR = obj_dir
 

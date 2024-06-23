@@ -1,15 +1,13 @@
-# make          <- runs simv (after compiling simv if needed)
-# make all      <- runs simv (after compiling simv if needed)
-# make simv     <- compile simv if needed (but do not run)
-# make syn      <- runs syn_simv (after synthesizing if needed then 
-#                                 compiling synsimv if needed)
-# make clean    <- remove files created during compilations (but not synthesis)
-# make nuke     <- remove all files created during compilation and synthesis
-#
-# To compile additional files, add them to the TESTBENCH or SIMFILES as needed
-# Every .vg file will need its own rule and one or more synthesis scripts
-# The information contained here (in the rules for those vg files) will be 
-# similar to the information in those scripts but that seems hard to avoid.
+# make compile  <- compiles a c program to compatible elf
+# make assemble <- compiles a assembly program to compatible elf
+# make sim      <- creates a executable to run the simulated hardware using verilator and drops
+#			       it in the main directory under the name simv 
+# make hex		<- creates a raw hex output of the elf so it is easily added to the testbench
+#				   to test a variety of programs on the cpu. Undesputedly the most
+#				   scuffed of all portions of the design, but verilator hates loading from .mem 
+#				   and I couldn't find a compliant, elf2hex or whatever one they used in the original umich class
+#				   another one of those programs I am just expected to have, in aiming ot make the project more open source... 
+# make clean    <- remove files created during compilations and sim creation as well as runs.
 #
 
 SOURCE = test_progs/rv32_fib_rec.s
@@ -88,6 +86,3 @@ clean:
 	rm -rf pipeline.out writeback.out 
 	rm -rf simv
 	rm -rf program.*
-
-# Phony targets
-.PHONY: all clean

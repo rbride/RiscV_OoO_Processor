@@ -47,8 +47,6 @@ hex: program.elf
 program: compile disassemble hex
 	@:
 
-debug_program:
-	gcc -lm -g -std=gnu11 -DDEBUG $(SOURCE) -o debug_bin
 assembly: assemble disassemble hex
 	@:
 
@@ -71,15 +69,10 @@ OBJ_DIR = obj_dir
 VERILATOR = verilator -sv --cc --exe --trace --trace-structs --build --timing --main \
 			 --Wno-"WIDTHEXPAND" --Wno-"CASEINCOMPLETE" --Wno-WIDTHTRUNC
 
-OUTPUT = sim
-
-all: $(OUTPUT)
-
 #Rule to build the verilated module and compile the C++ test
-$(OUTPUT): $(SYTHN_SRC)  $(TESTBENCH) 
+sim: $(SYTHN_SRC)  $(TESTBENCH) 
 	$(VERILATOR) $(SYTHN_SRC) $(TESTBENCH) 
 	mv $(OBJ_DIR)/Vpipeline ./simv
-#	$(MAKE) -C $(OBJ_DIR) -f Vpipeline.mk
 
 clean:
 	rm -rf $(OBJ_DIR) $(OUTPUT)

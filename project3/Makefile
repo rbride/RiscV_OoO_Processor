@@ -42,7 +42,7 @@ disassemble: program.debug.elf
 	rm program.debug.elf
 
 hex: program.elf
-	../../freedom-elf2hex/bin/elf2hex --bit-width 64 --input ./program.elf --output ./program.mem
+	../../freedom-elf2hex/bin/elf2hex --bit-width 64 --input ./program.elf --output ./testbench/program.mem
 
 program: compile disassemble hex
 	@:
@@ -78,4 +78,5 @@ clean:
 	rm -rf $(OBJ_DIR) $(OUTPUT)
 	rm -rf pipeline.out writeback.out 
 	rm -rf simv
-	rm -rf program.*
+	rm -rf program.* ./testbench/program.mem
+	
